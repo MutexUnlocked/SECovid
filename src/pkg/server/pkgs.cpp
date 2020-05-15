@@ -24,10 +24,10 @@ auto randomnumber() -> std::string{
     std::string num;
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> dis(1, 6);
+    std::uniform_int_distribution<> dis(0, 10);
     
     for(int i = 0; i < 6; i++){
-        num += dis(gen);
+        num += std::to_string(dis(gen));
     }
     return num;
 }
@@ -61,15 +61,20 @@ private:
                   // SEND NUMBER TO PHONE NUMBER
                   this->num = randomnumber();
                   this->phone = rez.substr(1);
-                  std::cout << "NUM 0006";
-                  this->num = "0006";
                   process_number(num, this->phone,false);
                   sendback_ = "CHECK YOUR PHONE FOR A UNIQUE CODE";
               }else if(rez[0] == 'C'){
                   if(this->num == rez.substr(1)){
-                      auto x = pkg.extract(&this->num[0]);
+                      std::cout << this->phone << std::endl;
+                      auto x = pkg.extract(&this->phone[0]);
                       sendback_ = x.d.serializeToHexStr() + 
-                      "CUTHERE" + x.q.serializeToHexStr();
+                      "," + x.q.serializeToHexStr() + "," + pkg.m_pub.g1.serializeToHexStr();
+                      std::cout << sendback_ << std::endl;
+
+                     auto ciphertext = encrypt(&pkg.m_pub, "7639239302", "I like to live in china");
+                     decrypt(x, ciphertext);
+                     decrypt(x, ciphertext);
+                     decrypt(x, ciphertext);
                   }
               }
               bzero(data_, sizeof(data_));

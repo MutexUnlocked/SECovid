@@ -1,0 +1,1 @@
+g++ pkgs.cpp -o pkgs -lsecovid -lboost_system -lpthread -lgmp -lmcl -lcurl -lsodium -lssl -lcrypto

@@ -2,60 +2,35 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include "user.hpp"
 #include <boost/asio.hpp>
+#include <secovid/pkg.hpp>
+
+G1 generator;
+
+PKG pkg;
 
 namespace net = boost::asio;            // from <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
 
-auto main(int argc, char *argv[]) -> int
-{
-    try
-    {
-        if (argc != 3)
-        {
-            std::cerr << "Usage: user <host> <port>\n";
-            return 1;
-        }
 
-        boost::asio::io_context io_context;
-        std::string msg;
-        std::cout << "ENTER PHONE NUMBER: " << std::endl;
-        std::getline(std::cin, msg);
-        msg.insert(0, "N");
-
-        tcp::socket s(io_context);
-        tcp::resolver resolver(io_context);
-        boost::asio::connect(s, resolver.resolve(argv[1], argv[2]));
-
-        boost::asio::write(s, boost::asio::buffer(msg, msg.size()));
-        if (recv)
-        {
-            std::vector<char> buf(1024);
-            size_t len = s.read_some(boost::asio::buffer(buf));
-            std::string data(buf.begin(), buf.end());
-            data.resize(len);
-
-            std::cout << data << std::endl;
-        }
-
-        std::cout << "ENTER CODE: " << std::endl;
-        std::getline(std::cin, msg);
-        msg.insert(0, "C");
-        boost::asio::write(s, boost::asio::buffer(msg, msg.size()));
-        if (recv)
-        {
-            std::vector<char> buf(1024);
-            size_t len = s.read_some(boost::asio::buffer(buf));
-            std::string data(buf.begin(), buf.end());
-            data.resize(len);
-
-            std::cout << data << std::endl;
-        }
+auto main(int argc, char *argv[]) -> int{
+    if (argc != 3){
+        std::cerr << "Usage: user <host> <port>\n";
     }
-    catch (std::exception &e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
+
+    auto key_str = get_key_str(argv[1], argv[2]);
+    auto pri_key = get_key(key_str);
+
+    // std::cout <<  pri_key.first.d.serializeToHexStr() << "," << 
+    // pri_key.first.q.serializeToHexStr() << "," << 
+    // pri_key.second.g1.serializeToHexStr() << std::endl;
+
+    auto fred = encrypt(&pri_key.second, "7639239302", "I like to live in china");
+    decrypt(pri_key.first, fred);
+    decrypt(pri_key.first, fred);
+    decrypt(pri_key.first, fred);
+    decrypt(pri_key.first, fred);
     return 0;
 }
