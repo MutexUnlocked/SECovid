@@ -26,6 +26,7 @@ auto main(int argc, char *argv[]) -> int{
     // std::cout <<  pri_key.first.d.serializeToHexStr() << "," << 
     // pri_key.first.q.serializeToHexStr() << "," << 
     // pri_key.second.g1.serializeToHexStr() << std::endl;
+    std::cout << generator.serializeToHexStr() << std::endl;
 
     auto fred = encrypt(&pri_key.second, "7639239302", "I like to live in china");
     decrypt(pri_key.first, fred);

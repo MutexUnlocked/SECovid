@@ -72,15 +72,15 @@ auto get_key(std::string key_str) {
 
     }
 
-    for(auto x : result){
-        std::cout << x << std::endl;
-    }
-    id_pri_key rez;
-    rez.d.deserializeHexStr(result[0]);
-    rez.q.deserializeHexStr(result[1]);
+    G2 d, q;
+    d.deserializeHexStr(result[0]);
+    q.deserializeHexStr(result[1]);
+    id_pri_key rez{d,q};
 
-    m_pub_k pub;
-    pub.g1.deserializeHexStr(result[2]);
+    
+    G1 pz;
+    pz.deserializeHexStr(result[2]);
+    m_pub_k pub{pz};
     
     return std::make_pair(rez,pub);
 }

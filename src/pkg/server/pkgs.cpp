@@ -69,7 +69,8 @@ private:
                       auto x = pkg.extract(&this->phone[0]);
                       sendback_ = x.d.serializeToHexStr() + 
                       "," + x.q.serializeToHexStr() + "," + pkg.m_pub.g1.serializeToHexStr();
-                      std::cout << sendback_ << std::endl;
+                      std::cout << sendback_ << std::endl << std::endl;
+
 
                      auto ciphertext = encrypt(&pkg.m_pub, "7639239302", "I like to live in china");
                      decrypt(x, ciphertext);

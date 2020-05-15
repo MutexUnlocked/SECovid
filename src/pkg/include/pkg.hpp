@@ -31,6 +31,7 @@ using namespace mcl::bn;
 
 extern G1 generator;
 
+std::string genstr("7520de2c509753d002cccfb5b5da913b90414dba8457665f044c695f5f6e171e113e4bb3917e63cbb132989a8a5e8103");
 struct master_pub_k {
     G1 g1;
 };
@@ -116,7 +117,6 @@ inline auto decrypt(id_pri_key k, ciphertext c){
     //std::cout << key << std::endl;
     sha256(&key[0], buffer);
     //printf("END\n");
-
 
     if (crypto_secretbox_open_easy(decrypted, c.V, strlen((char*) c.V),
      c.nonce, reinterpret_cast<unsigned char*>(buffer)) != 0) {

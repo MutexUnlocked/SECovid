@@ -4,8 +4,7 @@ using namespace std;
 
 PKG::PKG(){
     initPairing(mcl::BLS12_381);
-    char* gen = "abc";
-    hashAndMapToG1(generator, &gen, strlen(gen));
+    generator.deserializeHexStr(genstr);
     G1 pub;
     Fr s; s.setByCSPRNG();
     
