@@ -6,16 +6,17 @@ import (
 	"io"
 	"time"
 
+	"github.com/MutexUnlocked/groth"
 	"golang.org/x/crypto/nacl/box"
 )
 
-type mixer struct {
+type Mixer struct {
 	sk       *[32]byte
 	pk       *[32]byte
 	messages *[32][32]byte
 }
 
-func (m *mixer) init() {
+func (m *Mixer) init() {
 	publicKey, privateKey, err := box.GenerateKey(crypto_rand.Reader)
 	if err != nil {
 		panic(err)
@@ -26,7 +27,7 @@ func (m *mixer) init() {
 	//fmt.Println(*m.pk)
 }
 
-func (m *mixer) encrypt(msg []byte, recvPublicKey [32]byte) []byte {
+func (m *Mixer) encrypt(msg []byte, recvPublicKey [32]byte) []byte {
 	// The first 24 bytes of the ciphertext will contain the nonce
 	var nonce [24]byte
 	if _, err := io.ReadFull(crypto_rand.Reader, nonce[:]); err != nil {
@@ -36,7 +37,7 @@ func (m *mixer) encrypt(msg []byte, recvPublicKey [32]byte) []byte {
 	return enc
 }
 
-func (m *mixer) decrypt(enc []byte, senderPublicKey [32]byte) []byte {
+func (m *Mixer) decrypt(enc []byte, senderPublicKey [32]byte) []byte {
 	var decNonce [24]byte
 	copy(decNonce[:], enc[:24])
 	dec, ok := box.Open(nil, enc[24:], &decNonce, &senderPublicKey, m.sk)
@@ -46,7 +47,7 @@ func (m *mixer) decrypt(enc []byte, senderPublicKey [32]byte) []byte {
 	return dec
 }
 
-func (m *mixer) shuffle() {
+func (m *Mixer) shuffle() {
 	start := time.Now()
 
 	var secrets []byte
@@ -57,7 +58,7 @@ func (m *mixer) shuffle() {
 		i += 1
 	}
 
-	g := Groth{}
+	g := groth.Groth{}
 	ciphers, ciphers_len, groupelts, element_len := g.Encrypt(secrets, 5, 1)
 	fmt.Println("Going to shuffle", len(groupelts)/element_len, "elements")
 	dec_groupelts, dec_element_len := g.Decrypt(ciphers, ciphers_len, 1)
