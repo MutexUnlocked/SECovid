@@ -1,4 +1,4 @@
-package mixer
+package server
 
 import (
 	crypto_rand "crypto/rand"
@@ -9,13 +9,13 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
-type server struct {
+type mixer struct {
 	sk       *[32]byte
 	pk       *[32]byte
 	messages *[32][32]byte
 }
 
-func (m *server) init() {
+func (m *mixer) init() {
 	publicKey, privateKey, err := box.GenerateKey(crypto_rand.Reader)
 	if err != nil {
 		panic(err)
@@ -26,7 +26,7 @@ func (m *server) init() {
 	//fmt.Println(*m.pk)
 }
 
-func (m *server) encrypt(msg []byte, recvPublicKey [32]byte) []byte {
+func (m *mixer) encrypt(msg []byte, recvPublicKey [32]byte) []byte {
 	// The first 24 bytes of the ciphertext will contain the nonce
 	var nonce [24]byte
 	if _, err := io.ReadFull(crypto_rand.Reader, nonce[:]); err != nil {
@@ -36,7 +36,7 @@ func (m *server) encrypt(msg []byte, recvPublicKey [32]byte) []byte {
 	return enc
 }
 
-func (m *server) decrypt(enc []byte, senderPublicKey [32]byte) []byte {
+func (m *mixer) decrypt(enc []byte, senderPublicKey [32]byte) []byte {
 	var decNonce [24]byte
 	copy(decNonce[:], enc[:24])
 	dec, ok := box.Open(nil, enc[24:], &decNonce, &senderPublicKey, m.sk)
@@ -46,7 +46,7 @@ func (m *server) decrypt(enc []byte, senderPublicKey [32]byte) []byte {
 	return dec
 }
 
-func (m *server) shuffle() {
+func (m *mixer) shuffle() {
 	start := time.Now()
 
 	var secrets []byte

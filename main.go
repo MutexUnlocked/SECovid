@@ -1,9 +1,9 @@
 package main
 
-import "fmt"
+import "github.com/MutexUnlocked/SECovid/server" s
 
 func main() {
-	var x, y server
+	var x, y s.mixer
 	x.init()
 	y.init()
 

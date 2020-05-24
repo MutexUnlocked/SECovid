@@ -1,4 +1,4 @@
-package mixer
+package server
 
 /*
 #cgo LDFLAGS: -O2  -L. -lntl -lgmp -lboost_system  -lboost_filesystem -lpthread -lboost_regex -lboost_thread -lboost_context -lgomp -lgroth
