@@ -5,7 +5,7 @@ import (
 )
 
 func TestServer(t *testing.T) {
-	var x, y mixer
+	var x, y Mixer
 	x.init()
 	y.init()
 
