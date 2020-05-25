@@ -1,0 +1,1 @@
+g++ test_homo.cpp -o homo -lhelib -lntl  -lpthread -lgmp

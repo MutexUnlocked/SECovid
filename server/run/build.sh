@@ -1,1 +1,1 @@
-g++   server.cpp -o server -lsecovid -lgroth -lntl -fopenmp -lpthread
+g++ server.cpp -o server -lsecovid -lgroth -lntl -fopenmp -lpthread

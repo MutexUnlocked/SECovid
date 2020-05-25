@@ -53,3 +53,10 @@ void sendmessages(std::vector<std::vector<unsigned char>> rmsgs){
         msgs.push_back(x);
     }
 }
+
+// An rpc call the recieves messages
+void sendmessage(std::vector<unsigned char> msg){
+    for(auto x : rmsgs){
+        msgs.push_back(x);
+    }
+}
