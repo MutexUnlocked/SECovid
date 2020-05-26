@@ -19,7 +19,7 @@ void Mixer::get_messages_from_server(std::string ip){
 }
 
 //TODO: NAME CONFLICT FIX LATER
-std::vector<unsigned char> Mixer::encrypt(std::string msg, unsigned char* recipient_pk){
+std::vector<unsigned char> Mixer::Encrypt(std::string msg, unsigned char* recipient_pk){
     int CIPHERTEXT_LEN = msg.length() + crypto_box_MACBYTES;
     unsigned char ciphertext[CIPHERTEXT_LEN];
     unsigned char message[msg.length()];
@@ -32,7 +32,7 @@ std::vector<unsigned char> Mixer::encrypt(std::string msg, unsigned char* recipi
     return rez;
 }
 
-std::vector<unsigned char> Mixer::decrypt(unsigned char* ciphertext){
+std::vector<unsigned char> Mixer::Decrypt(unsigned char* ciphertext){
     unsigned char decrypted[10000];
     auto len = sizeof(ciphertext)/sizeof(ciphertext[0]);
     crypto_box_seal_open(decrypted, ciphertext, len,this->pk, this->sk);

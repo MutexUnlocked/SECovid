@@ -11,8 +11,7 @@
 #include <rpc/client.h>
 #include <boost/asio.hpp>
 #include <helib/helib.h>
-#include <helib/binaryArith.h>
-#include <helib/intraSlot.h>
+#include <helib/DoubleCRT.h>
 
 
 namespace net = boost::asio;            // from <boost/asio.hpp>
@@ -22,35 +21,33 @@ using boost::asio::ip::tcp;
 class User{
 private:
     std::string key_str;
-    helib::EncryptedArray &ea;
-    helib::PubKey public_key;
     std::pair<id_pri_key, master_pub_k> keys;
+    helib::PubKey* hpublic_key;
+    std::shared_ptr<const helib::EncryptedArray> ea;
+    helib::Context context;
     // Hmomorphic Encryption Parameters
     // Plaintext prime modulus.
-    long p = 2;
+    long p = 4999;
     // Cyclotomic polynomial - defines phi(m).
-    long m = 4095;
+    long m = 32109;
     // Hensel lifting (default = 1).
     long r = 1;
     // Number of bits of the modulus chain.
     long bits = 500;
     // Number of columns of Key-Switching matrix (typically 2 or 3).
     long c = 2;
-    // Factorisation of m required for bootstrapping.
-    std::vector<long> mvec = {7, 5, 9, 13};
-    // Generating set of Zm* group.
-    std::vector<long> gens = {2341, 3277, 911};
-    // Orders of the previous generators.
-    std::vector<long> ords = {6, 4, 6};
 public:
     User();
     void GetKeysFromPKG(std::string host, std::string port);
     ciphertext EncryptMessage(char* id, char* msg);
     void DecryptMessage(ciphertext c);
-    void CreateEncHomoLocation(long double longitude, long double latitude);
+    std::pair<helib::Ctxt, helib::Ctxt> CreateEncHomoLocation(long double longitude, long double latitude);
+    void ComputeHomoDistance(helib::Ctxt l, helib::Ctxt la, helib::Ctxt l2, helib::Ctxt la2);
     id_pri_key GetPrivateKey();
     master_pub_k GetMasterKey();
 };
+
+
 
 inline auto get_key_str(std::string host, std::string port) -> std::string{
     try

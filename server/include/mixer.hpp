@@ -34,8 +34,8 @@ private:
     rpc::client* client;
 public:
     Mixer();
-    std::vector<unsigned char> Mixer::encrypt(std::string msg, unsigned char* recipient_pk);
-    std::vector<unsigned char> Mixer::decrypt(unsigned char* ciphertext);
+    std::vector<unsigned char> Encrypt(std::string msg, unsigned char* recipient_pk);
+    std::vector<unsigned char> Decrypt(unsigned char* ciphertext);
     void shuffle(bool multi_threaded);
     void get_messages_from_server(std::string ip);
     void run();
@@ -56,7 +56,7 @@ void sendmessages(std::vector<std::vector<unsigned char>> rmsgs){
 
 // An rpc call the recieves messages
 void sendmessage(std::vector<unsigned char> msg){
-    for(auto x : rmsgs){
+    for(auto x : msgs){
         msgs.push_back(x);
     }
 }

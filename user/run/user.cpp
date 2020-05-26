@@ -5,10 +5,11 @@
 #include "user.hpp"
 #include <boost/asio.hpp>
 #include <secovid/pkg.hpp>
-
+#include "contact.hpp"
 G1 generator;
-
 PKG pkg;
+std::string genstr("7520de2c509753d002cccfb5b5da913b90414dba8457665f044c695f5f6e171e113e4bb3917e63cbb132989a8a5e8103");
+
 
 namespace net = boost::asio;            // from <boost/asio.hpp>
 
@@ -33,5 +34,9 @@ auto main(int argc, char *argv[]) -> int{
     decrypt(pri_key.first, fred);
     decrypt(pri_key.first, fred);
     decrypt(pri_key.first, fred);
+
+    Contact x;
+    x.AddContact(4,4);
+    x.DFS(4);
     return 0;
 }

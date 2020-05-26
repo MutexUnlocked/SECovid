@@ -1,16 +1,11 @@
 #include "user.hpp"
 
-User::User(){
+User::User() : context(this->m, this->p, this->r) {
     std::cout << "Initialising context object..." << std::endl;
-    helib::Context context(this->m, this->p, this->r, this->gens, this->ords);
 
     // Modify the context, adding primes to the modulus chain.
     std::cout << "Building modulus chain..." << std::endl;
     buildModChain(context, bits, c);
-
-    // Make bootstrappable.
-    context.makeBootstrappable(
-      helib::convert<NTL::Vec<long>, std::vector<long>>(mvec));
 
     // Print the context.
     context.zMStar.printout();
@@ -23,24 +18,20 @@ User::User(){
     // Generate the secret key.
     secret_key.GenSecKey();
 
-    // Generate bootstrapping data.
-    secret_key.genRecryptData();
+    // Compute key-switching matrices that we need
+    helib::addSome1DMatrices(secret_key);
 
     // Public key management.
     // Set the secret key (upcast: SecKey is a subclass of PubKey).
-    this->public_key = secret_key;
-
+    const helib::PubKey& public_key = secret_key;
+    hpublic_key = const_cast<helib::PubKey*>(&public_key);
     // Get the EncryptedArray of the context.
-    this->ea = *(context.ea);
-
-    // Build the unpack slot encoding.
-    std::vector<helib::zzX> unpackSlotEncoding;
-    buildUnpackSlotEncoding(unpackSlotEncoding, ea);
-
+    ea = (context.ea);
     // Get the number of slot (phi(m)).
-    long nslots = ea.size();
+    long nslots = ea->size();
     std::cout << "Number of slots: " << nslots << std::endl;
 }
+
 void User::GetKeysFromPKG(std::string host, std::string port){
     auto key_str = get_key_str(host, port);
     auto pri_key = get_key(key_str);
@@ -64,38 +55,34 @@ void User::DecryptMessage(ciphertext c){
     decrypt(this->keys.first, c);
 }
 
-void User::CreateEncHomoLocation(long double longitude, long double latitude){
-    long bitSize = 16;
-    long outSize = 2 * bitSize;
-    long a_data = NTL::RandomBits_long(bitSize);
-    long b_data = NTL::RandomBits_long(bitSize);
-    long c_data = NTL::RandomBits_long(bitSize);
-
-    std::cout << "Pre-encryption data:" << std::endl;
-    std::cout << "a = " << a_data << std::endl;
-    std::cout << "b = " << b_data << std::endl;
-    std::cout << "c = " << c_data << std::endl;
-
-    // Use a scratch ciphertext to populate vectors.
-    helib::Ctxt scratch(public_key);
-    std::vector<helib::Ctxt> encrypted_a(bitSize, scratch);
-    std::vector<helib::Ctxt> encrypted_b(bitSize, scratch);
-    std::vector<helib::Ctxt> encrypted_c(bitSize, scratch);
-    // Encrypt the data in binary representation.
-    for (long i = 0; i < bitSize; ++i)
-    {
-        std::vector<long> a_vec(this->ea.size());
-        std::vector<long> b_vec(this->ea.size());
-        std::vector<long> c_vec(this->ea.size());
-        // Extract the i'th bit of a,b,c.
-        for (auto &slot : a_vec)
-            slot = (a_data >> i) & 1;
-        for (auto &slot : b_vec)
-            slot = (b_data >> i) & 1;
-        for (auto &slot : c_vec)
-            slot = (c_data >> i) & 1;
-        ea.encrypt(encrypted_a[i], public_key, a_vec);
-        ea.encrypt(encrypted_b[i], public_key, b_vec);
-        ea.encrypt(encrypted_c[i], public_key, c_vec);
+std::pair<helib::Ctxt, helib::Ctxt> User::CreateEncHomoLocation(long double longitude, long double latitude){
+    helib::Ptxt<helib::BGV> longi(this->context);
+    for (int i = 0; i < longi.size(); ++i){
+        longi[i] = i;
     }
+
+    helib::Ptxt<helib::BGV> lati(this->context);
+    for (int i = 0; i < lati.size(); ++i){
+        lati[i] = i;
+    }
+    longi.addConstant(longitude);
+    lati.addConstant(latitude);
+
+    // Create ciphertexts
+    helib::Ctxt lat_ctxt(*this->hpublic_key);
+    hpublic_key->Encrypt(lat_ctxt, lati);
+
+    helib::Ctxt long_ctxt(*this->hpublic_key);
+    hpublic_key->Encrypt(long_ctxt, longi);
+
+
+    return std::make_pair(lat_ctxt, long_ctxt);
+}
+
+void User::ComputeHomoDistance(helib::Ctxt l, helib::Ctxt la, helib::Ctxt l2, helib::Ctxt la2){
+    la2 -= la;
+    l2 -= l;
+
+    
+
 }

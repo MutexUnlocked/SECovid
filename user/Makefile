@@ -4,7 +4,7 @@ CC = g++
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
  
 #-ljsoncpp -ljsonrpccpp-common -ljsonrpccpp-client
-CPPFLAGS = -std=c++14 -I$(ROOT_DIR)/include  -fomit-frame-pointer -fPIC -DQHASM -lsodium -lmcl -lssl -lgroth -lcrypto -lntl lhelib -lpthread -lgmp -fopenmp
+CPPFLAGS = -std=c++14 -I$(ROOT_DIR)/include  -fomit-frame-pointer -fPIC -DQHASM -lsodium -lmcl -lssl -lgroth -lcrypto -lntl -lhelib -lpthread -lgmp -fopenmp
 LDFLAGS =  -shared -L/usr/local/lib 
 
 SOURCES = $(shell echo *.cpp)

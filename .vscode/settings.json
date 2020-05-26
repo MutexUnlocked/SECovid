@@ -67,6 +67,15 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "*.ipp": "cpp",
+        "span": "cpp",
+        "any": "cpp",
+        "charconv": "cpp",
+        "cuchar": "cpp",
+        "regex": "cpp",
+        "scoped_allocator": "cpp",
+        "shared_mutex": "cpp",
+        "valarray": "cpp"
     }
 }
