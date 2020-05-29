@@ -35,8 +35,7 @@ auto main(int argc, char *argv[]) -> int{
     decrypt(pri_key.first, fred);
     decrypt(pri_key.first, fred);
 
-    Contact x;
-    x.AddContact(4,4);
-    x.DFS(4);
+    Contact x("AAAA");
+    x.AddContact("AAAB");
     return 0;
 }
