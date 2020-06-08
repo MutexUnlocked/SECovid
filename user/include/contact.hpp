@@ -1,11 +1,13 @@
 #pragma once
 
 #include <map>
+#include <cstring>
 #include <vector>
 #include <sstream>
 #include <iostream>
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
 
 // #include <boost/graph/adjacency_list.hpp>
@@ -18,15 +20,15 @@ const static int SIZE = 100;
 struct contact_data{
     std::map<int, std::string> uv;
     std::map<std::string, int> vu;
-    std::vector<int> graph[SIZE];
+    std::vector<std::vector<int>> graph;
+	std::string uid;
 
     template<class Archive>
     void serialize(Archive & archive){
-        archive(uv, vu, graph); 
+        archive(uv, vu, graph, uid);
     }
 };
 typedef struct contact_data contact_data;
-
 class Contact
 {
 private:
@@ -34,30 +36,58 @@ private:
     
     std::map<int, std::string> uid_from_vertex;
     std::map<std::string, int> vertex_from_uid;
-    std::vector<int> graph[SIZE];
+    std::vector<std::vector<int>> graph;
     void addToMap(int n, std::string uid);
     void addGraph(contact_data d, int v);
     void addEdge(int u, int v);
-    void DFSUtil(int u, std::vector<bool> &visited);
-    void DFS(int V);
+    void DFSUtil(int u, std::vector<bool> &visited, contact_data g);
     bool find(std::string uid);
     
 public:
+	std::string uid;
     Contact(std::string uid_hash);
     void AddContact(std::string uid, contact_data data);
+    void PrintGraph();
+	void PrintAllUIDS();
+	void DFS(contact_data data);
     std::string Serialize();
     contact_data Deserialize(std::string cdata);
 };
 
 // Set up the user's contact list
 Contact::Contact(std::string uid_hash){
-    for(int i = 0; i < graph->size(); i++){
+	/*for(int i = 0; i < SIZE; i++){
+		graph[i].resize(SIZE);
+	}*/
+
+    /*for(int i = 0; i < graph->size(); i++){
         for(int j = 0; j < graph[i].size(); j++){
             graph[i][j] = -1;
         }
-    }
+    }*/
+	graph.resize(SIZE);
     addToMap(0, uid_hash);
+	this->uid = uid_hash;
 }
+
+void Contact::PrintGraph(){
+    for (int v = 0; v < graph.size(); v++){
+		std::cout << v << "";
+        for (auto x : graph[v])
+           std::cout << "-> " << x;
+        printf("\n");
+    }
+	//std::cout << "TEST: " << graph[1][0] << std::endl;
+}
+
+void Contact::PrintAllUIDS(){
+	for(int i = 0 ; i < this->graph.size(); i++){
+		if(this->graph[i].size() > 0){
+			std::cout << uid_from_vertex[i] << std::endl;
+		}
+	}
+}
+
 
 void Contact::addToMap(int n, std::string uid){
     this->uid_from_vertex[n] = uid;
@@ -75,35 +105,35 @@ void Contact::AddContact(std::string uid, contact_data data){
 }
 
 void Contact::addGraph(contact_data d, int v){
-    this->n = 0;
-    for(int i = 0; i < this->graph->size(); i++){
-        for(int j = 0; j < this->graph[i].size(); j++){
-            if(graph[i][j] != -1){
-                this->n++;
-            }
-        }
-    }
-
-    for(int i = 0; i < d.graph->size(); i++){
-        for(int j = 0; j < d.graph[i].size(); j++){
-            if(graph[i][j] != -1){
-                addEdge(i+this->n, d.graph[i][j] + this->n);
-                addToMap(i+this->n, d.uv[i]);
-            }
-        }
-    }
-    addEdge(this->n, v);
+    this->n = 1;
+    for(int i = 0; i < this->graph.size(); i++){
+		if(this->graph[i].size() > 0){
+			std::cout << this->graph[i].size() << std::endl;
+			this->n = i + 1;
+		}	
+	}
+	
+	std::cout << "N IS: " << this->n << std::endl;
+	this->DFS(d);
 }
 
 std::string Contact::Serialize(){
-    std::stringstream ss; // any stream can be used
+	contact_data d;
+   	d.uv = uid_from_vertex;
+	d.vu = vertex_from_uid;
+	d.graph = this->graph;
+	d.uid = this->uid;
+	//mcpy(d.graph, this->graph, sizeof(this->graph));
+	/*for(int i = 0; i < this->graph->size(); i++){
+		for(int j = 0; i < this->graph[i].size(); j++){
+			d.graph[i].push_back(this->graph[i][j]);
+		}
+	}*/
+	std::stringstream ss;
     {
-        cereal::PortableBinaryOutputArchive oarchive(ss); // Create an output archive
-        contact_data d;
-        d.uv = this->uid_from_vertex;
-        d.vu = this->vertex_from_uid;
-        std::copy(std::begin(this->graph), std::end(this->graph), back_inserter(d.graph));
-        oarchive(d); 
+        cereal::PortableBinaryOutputArchive oarchive(ss);
+	   	// Create an output archive
+       oarchive(d);
     }  
     return ss.str();
 }
@@ -134,19 +164,32 @@ void Contact::addEdge(int u, int v) {
   
 // A utility function to do DFS of graph 
 // recursively from a given vertex u. 
-void Contact::DFSUtil(int u, std::vector<bool> &visited){ 
-    visited[u] = true; 
-    std::cout << u << " "; 
-    for (int i=0; i< this->graph[u].size(); i++) 
-        if (visited[this->graph[u][i]] == false) 
-            DFSUtil(this->graph[u][i], visited); 
+void Contact::DFSUtil(int u, std::vector<bool> &visited, contact_data g){
+    visited[u] = true; 	
+    // std::cout << u << " "; 
+    for (int i=0; i< g.graph[u].size(); i++){ 
+        if (visited[g.graph[u][i]] == false){
+			std::cout << "N = " << this->n << std::endl;
+			std::cout << "ADDING " << (u + this->n) << "," << (g.graph[u][i] + this->n) << std::endl;
+            std::cout << g.uv[u] << std::endl;	
+		    addEdge(u + this->n, g.graph[u][i]  + this->n);
+			addToMap(u + this->n, g.uv[u]);
+		   // n++;	
+            DFSUtil(g.graph[u][i], visited, g); 
+		}
+	}
 } 
   
 // This function does DFSUtil() for all  
 // unvisited vertices. 
-void Contact::DFS(int V){ 
-    std::vector<bool> visited(V, false); 
-    for (int u = 0; u < V; u++) 
+void Contact::DFS(contact_data data){ 
+    std::vector<bool> visited(SIZE, false); 
+    for (int u = 0; u < SIZE; u++) 
         if (visited[u] == false) 
-            DFSUtil(u, visited); 
+            DFSUtil(u, visited, data);
+	//if(this->n == 1){
+	addEdge(this->n,0);
+	std::cout << "ADDING " << data.uid << std::endl;
+	addToMap(this->n, data.uid);
+	//}      
 } 

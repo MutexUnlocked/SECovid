@@ -6,7 +6,6 @@ User::User() : context(this->m, this->p, this->r) {
     // Modify the context, adding primes to the modulus chain.
     std::cout << "Building modulus chain..." << std::endl;
     buildModChain(context, bits, c);
-
     // Print the context.
     context.zMStar.printout();
     std::cout << std::endl;
